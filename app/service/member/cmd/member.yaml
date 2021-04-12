@@ -1,0 +1,11 @@
+Name: member.rpc.test
+ListenOn: 127.0.0.1:8002
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: member.rpc.test
+DataSource: root:root@tcp(localhost:3306)/gozero?loc=Local&parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
+MemberTable: member
+FavoriteTable: favorite
+Cache:
+  - Host: localhost:6379

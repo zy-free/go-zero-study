@@ -1,0 +1,39 @@
+image: docker:stable
+
+stages:
+  - build
+
+mediahubBuild:
+  variables:
+    PROJECT_NAME: mediahub
+    PROJECT_PATH: ./app/${PROJECT_NAME}
+    REGISTRY_IMAGE: ${ENV_DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${PROJECT_NAME}
+  stage: build
+  image: "swr.cn-east-2.myhuaweicloud.com/library/docker:latest"
+  script:
+    - docker info
+    - docker login -u ${ENV_DOCKER_REGISTRY_USER} -p ${ENV_DOCKER_REGISTRY_PASSWORD} ${ENV_DOCKER_REGISTRY}
+    - echo ".git" >> .dockerignore
+    - docker build . -f ${PROJECT_PATH}/Dockerfile -t ${REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} --build-arg git_user_name=${ENV_GIT_USER_NAME} --build-arg git_user_token=${ENV_GIT_USER_TOKEN} --build-arg project_path=${PROJECT_PATH}
+    - docker push ${REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+  only:
+    changes:
+      - "app/mediahub/**/*"
+
+
+webSdkBuild:
+  variables:
+    PROJECT_NAME: web-sdk
+    PROJECT_PATH: ./app/${PROJECT_NAME}
+    REGISTRY_IMAGE: ${ENV_DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${PROJECT_NAME}
+  stage: build
+  image: "swr.cn-east-2.myhuaweicloud.com/library/docker:latest"
+  script:
+    - docker info
+    - docker login -u ${ENV_DOCKER_REGISTRY_USER} -p ${ENV_DOCKER_REGISTRY_PASSWORD} ${ENV_DOCKER_REGISTRY}
+    - echo ".git" >> .dockerignore
+    - docker build . -f ${PROJECT_PATH}/Dockerfile -t ${REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} --build-arg git_user_name=${ENV_GIT_USER_NAME} --build-arg git_user_token=${ENV_GIT_USER_TOKEN} --build-arg project_path=${PROJECT_PATH}
+    - docker push ${REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}
+  only:
+    changes:
+      - "app/web-sdk/**/*"
