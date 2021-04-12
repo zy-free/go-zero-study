@@ -1,31 +1,37 @@
 
 ## 目标功能
 - 基础
-    version:1.16
+    version:1.15
     移除GOPATH,依赖GOMOD管理
-- api网关（聚合层）
+- （聚合层）
     - [x] (web框架)
     - [x] validate map的反射机制
     - [x] 错误码 引进B站错误码并且稍加改动，grpc层次直接返回server端错误码
-- 权限
-    - [x] JWT
-    - [x] [Casbin] (鉴权)
+    - [x] metadata元数据
+
+- demo
+    - [ ] admin+gorm(share-db架构)
+    - [x] service+sql
+    - [ ] job+Beanstalkd
+    - [ ] 数据库delete_time 为null的时间处理，自定义时间
+    - [ ] 多租户 (流量染色)
+    - [ ] errgroup并发请求
+    - [ ] 获取天气的等api的demo，client以及分层设计
+    
 - 日志
     - [ ] Metrics
     - [x] Access Log
     - [x] Tracing Opentracing+TraceID
 - 服务发现
     - [x] ETCD
-- 服务降级  hystrix <-> google sre
-    - [ ] todo
 - 服务熔断
-    - [ ] todo
+    - [x] grpc客户端层 break拦截器=>google sre
+    - [x] http层 breakerHandler=>google sre
 - 服务限流
-    - [ ] todo
+    - [x] 当CPU>90%的时候开始拒绝请求
+    - [x] shedding 拦截器，包括grpc服务端层，http层
 - 服务超时
     - [x] 全链路的超时，通过context控制
-- 配置中心
-    - [x] Apollo
 - 负载均衡
     - [x] p2c算法
 - 领域驱动
@@ -36,9 +42,7 @@
     - [x] 雪崩  过期时间在基础值上+了个随机值，防止大量失效
     - [x] 穿透  缓存一条内容为*,60s过期的数据，避免高并发访问数据库
     - [x] where转化主键
-- core
-    - [ ] timeWheel
-    - [ ] 分布式定时任务中心
+
 - stat采集
 - [x] cpu
 - [x] memory 
@@ -57,28 +61,4 @@
     `api通过bindRoutes时new`
     
     `rpcServer通过NewRpcServer时new，其中metrics的name通过server.SetName(c.Name)来改变 ` 
-- 基础服务
-	- 日志收集
-	    - [Fluentbit](https://fluentbit.io/) + Elasticsearch
-		    - [ ] [docker-compose](/console/docker-compose-fb-es.yml)
-		    - [ ] Kubernetes
-	- [ ] 监控告警
-		- Prometheus
-		- Grafana 
-- 发布
-    - [ ] 灰度
-    - [ ] 蓝绿
-- 部署
-	- K8S
-		- [ ] [helm](/deploy/k8s/helm)
-	- [ ] Docker
-	    - 示例[console](/console/docker-compose.yml)
-- CI/CD
-	- [Drone](https://drone.io/) [README](/deploy/docker/drone)
-	    - [ ] Go & Node编译
-	    - [ ] Docker镜像
-	    - [ ] Kubernetes发布
-	    - [ ] 缓存
-	- [ ] Jenkins
-- ...
 
