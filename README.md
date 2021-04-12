@@ -22,6 +22,8 @@
     - [ ] Metrics
     - [x] Access Log
     - [x] Tracing Opentracing+TraceID
+- 监控
+    - [ ] promethues监控+模板
 - 服务发现
     - [x] ETCD
 - 服务熔断
@@ -44,21 +46,21 @@
     - [x] where转化主键
 
 - stat采集
-- [x] cpu
-- [x] memory 
-
-    `通过golang的runtime.MemStats实现`
+    - [x] cpu
+    - [x] memory 
     
-    `其中不通的操作系统通过go build的条件编译实现`
-     
-- [x] 接口或者rpc的total,pass,drop
-
-    `SheddingHandler http的middleware里注入来统计`
+        `通过golang的runtime.MemStats实现`
+        
+        `其中不通的操作系统通过go build的条件编译实现`
+         
+    - [x] 接口或者rpc的total,pass,drop
     
-    `rpc同理，通过server的UnarySheddingInterceptor来注入`
-- [x] metrics
-
-    `api通过bindRoutes时new`
+        `SheddingHandler http的middleware里注入来统计`
+        
+        `rpc同理，通过server的UnarySheddingInterceptor来注入`
+    - [x] metrics
     
-    `rpcServer通过NewRpcServer时new，其中metrics的name通过server.SetName(c.Name)来改变 ` 
+        `api通过bindRoutes时new`
+        
+        `rpcServer通过NewRpcServer时new，其中metrics的name通过server.SetName(c.Name)来改变 ` 
 
