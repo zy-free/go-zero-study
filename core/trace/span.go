@@ -142,3 +142,22 @@ func StartServerSpan(ctx context.Context, carrier Carrier, serviceName, operatio
 	span := newServerSpan(carrier, serviceName, operationName)
 	return context.WithValue(ctx, tracespec.TracingKey, span), span
 }
+
+
+func SpanIdFromContext(ctx context.Context) string {
+	t, ok := ctx.Value(tracespec.TracingKey).(tracespec.Trace)
+	if !ok {
+		return ""
+	}
+
+	return t.SpanId()
+}
+
+func TraceIdFromContext(ctx context.Context) string {
+	t, ok := ctx.Value(tracespec.TracingKey).(tracespec.Trace)
+	if !ok {
+		return ""
+	}
+
+	return t.TraceId()
+}

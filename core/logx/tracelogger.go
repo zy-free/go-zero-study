@@ -3,11 +3,11 @@ package logx
 import (
 	"context"
 	"fmt"
+	"go-zero-study/core/trace"
 	"io"
 	"time"
 
 	"go-zero-study/core/timex"
-	"go-zero-study/core/trace/tracespec"
 )
 
 type traceLogger struct {
@@ -62,8 +62,8 @@ func (l *traceLogger) write(writer io.Writer, level, content string) {
 	l.Timestamp = getTimestamp()
 	l.Level = level
 	l.Content = content
-	l.Trace = traceIdFromContext(l.ctx)
-	l.Span = spanIdFromContext(l.ctx)
+	l.Trace = trace.TraceIdFromContext(l.ctx)
+	l.Span = trace.SpanIdFromContext(l.ctx)
 	outputJson(writer, l)
 }
 
@@ -73,20 +73,3 @@ func WithContext(ctx context.Context) Logger {
 	}
 }
 
-func spanIdFromContext(ctx context.Context) string {
-	t, ok := ctx.Value(tracespec.TracingKey).(tracespec.Trace)
-	if !ok {
-		return ""
-	}
-
-	return t.SpanId()
-}
-
-func traceIdFromContext(ctx context.Context) string {
-	t, ok := ctx.Value(tracespec.TracingKey).(tracespec.Trace)
-	if !ok {
-		return ""
-	}
-
-	return t.TraceId()
-}

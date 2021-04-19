@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"go-zero-study/core/ecode"
-	"go-zero-study/core/trace/tracespec"
+	"go-zero-study/core/trace"
 	"net/http"
 
 	"go-zero-study/core/logx"
@@ -17,14 +17,6 @@ type JSONMsg struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func traceIdFromContext(ctx context.Context) string {
-	t, ok := ctx.Value(tracespec.TracingKey).(tracespec.Trace)
-	if !ok {
-		return ""
-	}
-
-	return t.TraceId()
-}
 
 func JSON(ctx context.Context, w http.ResponseWriter, data interface{}, err error) {
 	code := http.StatusOK
@@ -43,7 +35,7 @@ func JSON(ctx context.Context, w http.ResponseWriter, data interface{}, err erro
 	}
 
 	w.Header().Set(ContentType, ApplicationJson)
-	w.Header().Set("trace-id", traceIdFromContext(ctx))
+	w.Header().Set("trace-id", trace.TraceIdFromContext(ctx))
 	w.WriteHeader(code)
 
 	if bs, err := json.Marshal(jsonMsg); err != nil {
@@ -75,7 +67,7 @@ func CSV(ctx context.Context, w http.ResponseWriter, csv CSVMsg, err error) {
 	}
 
 	w.Header().Set(ContentType, ApplicationCsv)
-	w.Header().Set("trace-id", traceIdFromContext(ctx))
+	w.Header().Set("trace-id", trace.TraceIdFromContext(ctx))
 	w.WriteHeader(code)
 
 	w.Header()["Content-Disposition"] = append(w.Header()["Content-Disposition"], fmt.Sprintf("attachment; filename=%s.csv", csv.Title))

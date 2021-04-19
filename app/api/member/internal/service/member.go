@@ -9,6 +9,7 @@ import (
 	"go-zero-study/core/ecode"
 	"go-zero-study/core/logx"
 	"go-zero-study/core/stringx"
+	"go-zero-study/core/threading"
 	"go-zero-study/rest/token"
 	"time"
 )
@@ -288,4 +289,29 @@ func (l *MemberLogic) AddFavorite(req model.AddFavoriteReq) (*model.AddFavoriteR
 func (l *MemberLogic) ErrorTest() error {
 	_, err := l.svcCtx.MemberCli.ErrorTest(l.ctx, &memberProto.GetMemberByIDReq{})
 	return errors.Wrapf(err, "ErrorTest")
+}
+
+func (l *MemberLogic) ErrorTheadGO() error {
+	threading.GoSafe(func() {
+		_, err := l.svcCtx.MemberCli.ErrorTest(l.ctx, &memberProto.GetMemberByIDReq{})
+		if err != nil{
+			panic(err)
+		}
+	})
+	return nil
+}
+
+func (l *MemberLogic) ErrorTheadGroup() error {
+	wg := threading.NewRoutineGroup()
+	wg.RunSafe(func() {
+		_, err := l.svcCtx.MemberCli.ErrorTest(l.ctx, &memberProto.GetMemberByIDReq{})
+		if err != nil{
+			panic(err)
+		}
+	})
+	wg.RunSafe(func() {
+		time.Sleep(time.Second)
+	})
+	wg.Wait()
+	return nil
 }

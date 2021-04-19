@@ -12,7 +12,7 @@ func greetMiddleware1(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logx.WithContext(r.Context()).Info("greetMiddleware1 request ... ")
 		// todo remove
-		ctx := nmd.NewContext(r.Context(), nmd.MD{nmd.Mid: int64(4), nmd.Color: "green"})
+		ctx := nmd.NewContext(r.Context(), nmd.MD{nmd.Mid: "4", nmd.Color: "green2"})
 		r = r.WithContext(ctx)
 		next(w, r)
 		logx.WithContext(r.Context()).Info("greetMiddleware1 reponse ... ")
@@ -41,7 +41,10 @@ func RegisterHandlers(engine *rest.Server, serverCtx *service.ServiceContext) {
 				{http.MethodGet, apiPath + "/members/export", exportMember(serverCtx)},
 
 				{http.MethodPost, apiPath + "/favorites", addFavorite(serverCtx)},
+
 				{http.MethodGet, apiPath + "/test/error", errorTest(serverCtx)},
+				{http.MethodGet, apiPath + "/test/theadGo", errorTheadGO(serverCtx)},
+				{http.MethodGet, apiPath + "/test/theadGroup", errorTheadGroup(serverCtx)},
 
 				// 刷新token，用旧token换取新token
 				//{http.MethodGet, apiPath + "/refresh_token", refreshToken(serverCtx)},
