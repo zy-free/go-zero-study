@@ -16,6 +16,9 @@
     - [ ] 数据库delete_time 为null的时间处理，自定义时间
     - [ ] 多租户 (流量染色)
     - [ ] errgroup并发请求
+    - [ ] thread包使用
+    - [ ] excel返回
+    - [x] 失血模型
     - [ ] 获取天气的等api的demo，client以及分层设计
     
 - 日志

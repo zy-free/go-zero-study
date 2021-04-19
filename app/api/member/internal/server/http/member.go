@@ -1,11 +1,14 @@
 package http
 
 import (
+	"bytes"
+	"encoding/csv"
 	"fmt"
 	"github.com/pkg/errors"
 	"go-zero-study/app/api/member/internal/model"
 	"go-zero-study/core/ecode"
 	"net/http"
+	"time"
 
 	"go-zero-study/app/api/member/internal/service"
 	"go-zero-study/rest/httpx"
@@ -202,3 +205,39 @@ func delMember(ctx *service.ServiceContext) http.HandlerFunc {
 		httpx.JSON(r.Context(), w, nil, err)
 	}
 }
+
+func exportMember(ctx *service.ServiceContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req model.QueryMemberByIdsReq
+		if err := httpx.Parse(r, &req); err != nil {
+			err = errors.Wrapf(ecode.RequestErr, "exportMember Parse error(%s)", err.Error())
+			httpx.JSON(r.Context(), w, nil, err)
+			return
+		}
+		l := service.NewMemberLogic(r.Context(), ctx)
+		resp, err := l.QueryMemberByIds(req)
+		data := make([][]string,0,len(resp.List)+1)
+		data = append(data, model.MemberExportFields())
+		for _, v := range resp.List {
+			data = append(data, v.ExportStrings())
+		}
+		buf := new(bytes.Buffer)
+
+		// add utf bom
+		if len(data) > 0 {
+			buf.WriteString("\xEF\xBB\xBF")
+		}
+
+		csvWriter := csv.NewWriter(buf)
+		err = csvWriter.WriteAll(data)
+		if err != nil {
+			return
+		}
+
+		httpx.CSV(r.Context(), w, httpx.CSVMsg{
+			Content: buf.Bytes(),
+			Title:   fmt.Sprintf("%s-%s", time.Now().Format("2006-01-02"), "members"),
+		}, err)
+	}
+}
+

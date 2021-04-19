@@ -3,6 +3,7 @@ package httpx
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"go-zero-study/core/ecode"
 	"go-zero-study/core/trace/tracespec"
 	"net/http"
@@ -55,5 +56,35 @@ func JSON(ctx context.Context, w http.ResponseWriter, data interface{}, err erro
 		}
 	} else if n < len(bs) {
 		logx.Errorf("actual bytes: %d, written bytes: %d", len(bs), n)
+	}
+}
+
+type CSVMsg struct {
+	Content []byte
+	Title   string
+}
+
+func CSV(ctx context.Context, w http.ResponseWriter, csv CSVMsg, err error) {
+	code := http.StatusOK
+	if err != nil {
+		logx.WithContext(ctx).Error(err)
+	}
+	bcode := ecode.Cause(err)
+	if bcode.Code() <= http.StatusNetworkAuthenticationRequired && bcode.Code() >= http.StatusOK {
+		code = bcode.Code()
+	}
+
+	w.Header().Set(ContentType, ApplicationCsv)
+	w.Header().Set("trace-id", traceIdFromContext(ctx))
+	w.WriteHeader(code)
+
+	w.Header()["Content-Disposition"] = append(w.Header()["Content-Disposition"], fmt.Sprintf("attachment; filename=%s.csv", csv.Title))
+
+	if _, err := w.Write(csv.Content); err != nil {
+		// http.ErrHandlerTimeout has been handled by http.TimeoutHandler,
+		// so it's ignored here.
+		if err != http.ErrHandlerTimeout {
+			logx.Errorf("write response failed, error: %s", err)
+		}
 	}
 }

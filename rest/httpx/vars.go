@@ -2,6 +2,7 @@ package httpx
 
 const (
 	ApplicationJson = "application/json"
+	ApplicationCsv  = "application/csv"
 	ContentEncoding = "Content-Encoding"
 	ContentSecurity = "X-Content-Security"
 	ContentType     = "Content-Type"

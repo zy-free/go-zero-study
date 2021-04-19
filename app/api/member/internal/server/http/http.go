@@ -38,6 +38,7 @@ func RegisterHandlers(engine *rest.Server, serverCtx *service.ServiceContext) {
 				{http.MethodPost, apiPath + "/members/:id/set", setMember(serverCtx)},
 				{http.MethodPost,apiPath + "/members/sort",sortMember(serverCtx)},
 				{http.MethodDelete, apiPath + "/members/:id", delMember(serverCtx)},
+				{http.MethodGet, apiPath + "/members/export", exportMember(serverCtx)},
 
 				{http.MethodPost, apiPath + "/favorites", addFavorite(serverCtx)},
 				{http.MethodGet, apiPath + "/test/error", errorTest(serverCtx)},
