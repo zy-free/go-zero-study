@@ -1,6 +1,7 @@
 package discov
 
 import (
+	"encoding/json"
 	"go-zero-study/core/discov/internal"
 	"go-zero-study/core/lang"
 	"go-zero-study/core/logx"
@@ -24,13 +25,26 @@ type (
 		pauseChan  chan lang.PlaceholderType
 		resumeChan chan lang.PlaceholderType
 	}
+
+	RpcServiceInstance struct {
+		ID        string            `json:"id"`
+		Name      string            `json:"name"`
+		Version   string            `json:"version"`
+		Metadata  map[string]string `json:"metadata"`
+		Endpoints []string          `json:"endpoints"`
+	}
+
+	Version struct {}
+
+	ID struct {}
 )
 
-func NewPublisher(endpoints []string, key, value string, opts ...PublisherOption) *Publisher {
+
+func NewPublisher(endpoints []string, key string, value *RpcServiceInstance, opts ...PublisherOption) *Publisher {
 	publisher := &Publisher{
 		endpoints:  endpoints,
 		key:        key,
-		value:      value,
+		value:      EncodeServiceInstance(value),
 		quit:       syncx.NewDoneChan(),
 		pauseChan:  make(chan lang.PlaceholderType),
 		resumeChan: make(chan lang.PlaceholderType),
@@ -139,4 +153,21 @@ func WithId(id int64) PublisherOption {
 	return func(publisher *Publisher) {
 		publisher.id = id
 	}
+}
+
+// 编码服务实例信息
+func EncodeServiceInstance(v *RpcServiceInstance) string {
+	value, _ := json.Marshal(v)
+	return string(value)
+}
+
+// 解码服务实例信息
+func DecodeServiceInstance(bs []byte) (*RpcServiceInstance, error) {
+	var serviceInstance RpcServiceInstance
+	err := json.Unmarshal(bs, &serviceInstance)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serviceInstance, nil
 }

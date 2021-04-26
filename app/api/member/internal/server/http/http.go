@@ -12,7 +12,7 @@ func greetMiddleware1(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logx.WithContext(r.Context()).Info("greetMiddleware1 request ... ")
 		// todo remove
-		ctx := nmd.NewContext(r.Context(), nmd.MD{nmd.Mid: "4", nmd.Color: "green2"})
+		ctx := nmd.NewContext(r.Context(), nmd.MD{nmd.Mid: "4", nmd.Color: "v1.0.1"})
 		r = r.WithContext(ctx)
 		next(w, r)
 		logx.WithContext(r.Context()).Info("greetMiddleware1 reponse ... ")

@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"google.golang.org/grpc/attributes"
 	"strings"
 
 	"go-zero-study/core/discov"
@@ -22,8 +23,20 @@ func (d *discovBuilder) Build(target resolver.Target, cc resolver.ClientConn, op
 	update := func() {
 		var addrs []resolver.Address
 		for _, val := range subset(sub.Values(), subsetSize) {
+			serverInstance, err := discov.DecodeServiceInstance([]byte(val))
+			if err != nil {
+				continue
+			}
+
+			 metedates :=  []interface{}{discov.Version{}, serverInstance.Version, discov.ID{} ,serverInstance.ID}
+			for k, v := range  serverInstance.Metadata {
+				metedates = append(metedates, k, v)
+			}
+
 			addrs = append(addrs, resolver.Address{
-				Addr: val,
+				Addr: serverInstance.Endpoints[0],
+				ServerName: serverInstance.Name,
+				Attributes: attributes.New(metedates...),
 			})
 		}
 		cc.UpdateState(resolver.State{

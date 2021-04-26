@@ -3,6 +3,9 @@ package p2c
 import (
 	"context"
 	"fmt"
+	"go-zero-study/core/discov"
+	mnd "go-zero-study/core/metadata"
+	"google.golang.org/grpc/metadata"
 	"math"
 	"math/rand"
 	"strings"
@@ -74,24 +77,49 @@ func (p *p2cPicker) Pick(ctx context.Context, info balancer.PickInfo) (
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
+	var color string
+
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if ok {
+		values := md.Get(mnd.Color)
+		if len(values) > 0 {
+			color = values[0]
+		}
+	}
+
+	var waitConns []*subConn
+	for _, conn := range p.conns {
+		if color != "" {
+			version, ok := conn.addr.Attributes.Value(discov.Version{}).(string)
+			if ok && version == color {
+				waitConns = append(waitConns, conn)
+			}
+		} else {
+			version, ok := conn.addr.Attributes.Value(discov.Version{}).(string)
+			if ok && version == "" {
+				waitConns = append(waitConns, conn)
+			}
+		}
+	}
+
 	var chosen *subConn
-	switch len(p.conns) {
+	switch len(waitConns) {
 	case 0:
 		return nil, nil, balancer.ErrNoSubConnAvailable
 	case 1:
-		chosen = p.choose(p.conns[0], nil)
+		chosen = p.choose(waitConns[0], nil)
 	case 2:
-		chosen = p.choose(p.conns[0], p.conns[1])
+		chosen = p.choose(waitConns[0], waitConns[1])
 	default:
 		var node1, node2 *subConn
 		for i := 0; i < pickTimes; i++ {
-			a := p.r.Intn(len(p.conns))
-			b := p.r.Intn(len(p.conns) - 1)
+			a := p.r.Intn(len(waitConns))
+			b := p.r.Intn(len(waitConns) - 1)
 			if b >= a {
 				b++
 			}
-			node1 = p.conns[a]
-			node2 = p.conns[b]
+			node1 = waitConns[a]
+			node2 = waitConns[b]
 			if node1.healthy() && node2.healthy() {
 				break
 			}

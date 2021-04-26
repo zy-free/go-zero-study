@@ -18,6 +18,7 @@ const (
 
 type ServiceConf struct {
 	Name       string
+	Version    string
 	Log        logx.LogConf
 	Mode       string            `json:",default=pro,options=dev|test|pre|pro"`
 	MetricsUrl string            `json:",optional"`

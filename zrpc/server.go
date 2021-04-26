@@ -1,8 +1,10 @@
 package zrpc
 
 import (
+	"go-zero-study/core/discov"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -42,7 +44,16 @@ func NewServer(c RpcServerConf, register internal.RegisterFn) (*RpcServer, error
 	metrics := stat.NewMetrics(c.ListenOn)
 	if c.HasEtcd() {
 		listenOn := figureOutListenOn(c.ListenOn)
-		server, err = internal.NewRpcPubServer(c.Etcd.Hosts, c.Etcd.Key, listenOn, internal.WithMetrics(metrics))
+
+		serverInstance := &discov.RpcServiceInstance{
+			ID:  c.Name + "." + strconv.Itoa(int(time.Now().UnixNano())),
+			Name: c.Name,
+			Version: c.Version,
+			Metadata: make(map[string]string),
+			Endpoints: []string{listenOn},
+		}
+
+		server, err = internal.NewRpcPubServer(c.Etcd.Hosts, c.Etcd.Key, serverInstance, internal.WithMetrics(metrics))
 		if err != nil {
 			return nil, err
 		}
