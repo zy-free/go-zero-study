@@ -87,20 +87,18 @@ func (p *p2cPicker) Pick(ctx context.Context, info balancer.PickInfo) (
 		}
 	}
 
-	var waitConns []*subConn
+	m := make(map[string][]*subConn)
 	for _, conn := range p.conns {
-		if color != "" {
-			version, ok := conn.addr.Attributes.Value(discov.Version{}).(string)
-			if ok && version == color {
-				waitConns = append(waitConns, conn)
-			}
-		} else {
-			version, ok := conn.addr.Attributes.Value(discov.Version{}).(string)
-			if ok && version == "" {
-				waitConns = append(waitConns, conn)
+		version, ok := conn.addr.Attributes.Value(discov.Version{}).(string)
+		if ok {
+			if subConns, ok := m[version]; ok {
+				subConns = append(subConns, conn)
+			} else {
+				m[version] = []*subConn{conn}
 			}
 		}
 	}
+	waitConns := m[color]
 
 	var chosen *subConn
 	switch len(waitConns) {
