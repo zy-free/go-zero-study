@@ -2,14 +2,14 @@ package internal
 
 import "go-zero-study/core/discov"
 
-func NewRpcPubServer(etcdEndpoints []string, etcdKey, listenOn string, opts ...ServerOption) (Server, error) {
+func NewRpcPubServer(etcdEndpoints []string, etcdKey string, serviceInstance *discov.RpcServiceInstance, opts ...ServerOption) (Server, error) {
 	registerEtcd := func() error {
-		pubClient := discov.NewPublisher(etcdEndpoints, etcdKey, listenOn)
+		pubClient := discov.NewPublisher(etcdEndpoints, etcdKey, serviceInstance)
 		return pubClient.KeepAlive()
 	}
 	server := keepAliveServer{
 		registerEtcd: registerEtcd,
-		Server:       NewRpcServer(listenOn, opts...),
+		Server:       NewRpcServer(serviceInstance.Endpoints[0], opts...),
 	}
 
 	return server, nil
