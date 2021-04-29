@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package api;
+
+service CommentsRPC {
+    rpc BathComments (BatchCommentsReq) returns (BatchCommentsResp);
+    rpc CreateComment(CreateCommentReq) returns (CreateCommentResp);
+
+}
+
+
+message BatchCommentsReq {
+    int64 roomId = 1;
+    int64 page = 2;
+    int64 size = 3;
+}
+
+
+message BatchCommentsResp {
+    repeated Comment comments = 1;
+    int64 totalPage = 2;
+    int64 totalSize = 3;
+}
+
+message CreateCommentReq {
+    int64 roomId = 1;
+    int64 userId = 2;
+    string avatar = 3;
+    string nickname = 4;
+    string content = 5;
+}
+
+message CreateCommentResp {
+    int64 id = 1;
+}
+
+message Comment {
+    int64 id = 1;
+    string avatar = 2;
+    int64 userId = 3;
+    string nickname = 4;
+    string content = 5;
+    int64 roomId = 6;
+}
+

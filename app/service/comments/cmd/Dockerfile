@@ -7,8 +7,8 @@ ENV GOOS linux
 ENV GOPROXY https://goproxy.cn,direct
 
 WORKDIR $GOPATH/src/zero
-COPY . .
-RUN go build -ldflags="-s -w" -o /app/main app/service/member/cmd/main.go
+COPY .. .
+RUN go build -ldflags="-s -w" -o /app/main app/basis/main
 
 
 FROM alpine

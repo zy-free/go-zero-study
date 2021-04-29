@@ -1,0 +1,12 @@
+Name: comment.rpc
+ListenOn: 127.0.0.1:8080
+Version:
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: comment.rpc
+DataSource: root:root@tcp(localhost:3306)/gozero?loc=Local&parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci
+CommentTable: comments
+Cache:
+  - Host: 127.0.0.1:6379
+    Type: node
